@@ -41,7 +41,7 @@ class MockDbAdapter implements AdapterInterface
         return new MockDbStatement();
     }
 
-    public function query($statement)
+    public function query()
     {
         return new MockDbStatement();
     }
@@ -53,7 +53,7 @@ class MockDbAdapter implements AdapterInterface
 
     public function rollBack(){}
 
-    public function setAttribute(int $attribute, $value){}
+    public function setAttribute($attribute, $value){}
 
     public function quoteIdentifier(string $identifier)
     {

@@ -2,7 +2,7 @@
 
 namespace Apster\Db\Adapter\Pdo;
 
-class MySql extends AbstractPdo
+class Mysql extends AbstractPdo
 {
     protected $driver = 'mysql';
     protected $identifierQuote = '`';

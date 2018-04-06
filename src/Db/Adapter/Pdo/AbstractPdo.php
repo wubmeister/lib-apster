@@ -17,7 +17,9 @@ class AbstractPdo extends PDO implements AdapterInterface
         $password = null;
 
         foreach ($options as $key => $value) {
-            $optionPairs[] = "{$key}:{$value}";
+            if ($key == 'username') $user = $value;
+            else if ($key == 'password') $password = $value;
+            else $optionPairs[] = "{$key}={$value}";
         }
         $dsn .= implode(';', $optionPairs);
 

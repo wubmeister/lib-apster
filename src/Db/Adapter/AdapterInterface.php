@@ -13,9 +13,9 @@ interface AdapterInterface
     public function inTransaction();
     public function lastInsertId($name = null);
     public function prepare($statement, $driver_options = []);
-    public function query($statement);
+    public function query();
     public function quote($string, $parameter_type = PDO::PARAM_STR);
     public function rollBack();
-    public function setAttribute(int $attribute, mixed $value);
+    public function setAttribute($attribute, $value);
     public function quoteIdentifier(string $identifier);
 }

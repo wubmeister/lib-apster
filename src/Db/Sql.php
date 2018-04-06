@@ -16,9 +16,9 @@ class Sql
     const SET = 'SET';
     const VALUES = 'VALUES';
     const WHERE = 'WHERE';
-    const GROUP = 'GROUP';
+    const GROUP = 'GROUP BY';
     const HAVING = 'HAVING';
-    const ORDER = 'ORDER';
+    const ORDER = 'ORDER BY';
     const LIMIT = 'LIMIT';
     const DUPLICATE = 'ON DUPLICATE KEY UPDATE';
 
@@ -86,7 +86,14 @@ class Sql
             if ($part == self::SELECT || $part == self::FROM || $part == self::JOIN) {
                 $param = $part == self::JOIN ? $params[1] : $params[0];
                 if (is_array($param)) {
-                    $string = $this->adapter->quoteIdentifier(implode($param)) . ' AS ' . implode(array_keys($param));
+                    foreach ($param as $alias => $name) {
+                        $string = $this->adapter->quoteIdentifier($name);
+                        if (!is_numeric($alias)) {
+                            $string .= " AS " . $this->adapter->quoteIdentifier($alias);
+                        }
+                        $this->parts[$part][] = $string;
+                    }
+                    $string = null;
                 } else {
                     $string = $param;
                 }
@@ -128,7 +135,13 @@ class Sql
                 }
             }
             else {
-                $string = $params[0];
+                if (is_array($params[0])) {
+                    foreach ($params[0] as $value) {
+                        $this->parts[$part][] = $value;
+                    }
+                } else {
+                    $string = $params[0];
+                }
             }
 
             if ($part == self::JOIN) {

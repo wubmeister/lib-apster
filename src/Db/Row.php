@@ -2,14 +2,14 @@
 
 namespace Apster\Db;
 
-use Apster\Storage\ResultsetInterface;
+use Apster\Storage\ResultInterface;
 
-class Row implements ResultsetInterface
+class Row implements ResultInterface
 {
     protected $table;
     protected $persistent;
 
-    public function __construct(Table $table, bool $persistent)
+    public function __construct(Table $table, bool $persistent = false)
     {
         $this->table = $table;
         $this->persistent = $persistent;
@@ -19,6 +19,9 @@ class Row implements ResultsetInterface
     {
         $columns = $this->table->getColumns();
         $primary = $this->table->getPrimaryKey();
+        $values = [];
+        $autoInc = $this->table->getAutoIncrementColumn();
+
         foreach ($columns as $column) {
             if (isset($this->$column)) {
                 $values[$column] = $this->$column;
@@ -33,14 +36,17 @@ class Row implements ResultsetInterface
             }
             $this->table->update($values, $where);
         } else {
-            $this->table->insert($values);
+            $result = $this->table->insert($values);
+            if ($result && $autoInc) {
+                $this->$autoInc = $result;
+            }
+            $this->isPersistent = true;
         }
     }
 
     public function delete()
     {
         if ($this->persistent) {
-            $columns = $this->table->getColumns();
             $primary = $this->table->getPrimaryKey();
             $where = [];
             foreach ($primary as $pri) {

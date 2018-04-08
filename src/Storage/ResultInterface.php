@@ -2,7 +2,7 @@
 
 namespace Apster\Storage;
 
-interface ResultInterface extends Iterator
+interface ResultInterface
 {
     public function save();
     public function delete();

@@ -10,6 +10,7 @@ class Table implements StorageInterface
     protected $name;
     protected $adapter;
     protected $columns;
+    protected $autoIncrementColumn;
     protected $primary;
     protected $rowClass = Row::class;
 
@@ -116,26 +117,34 @@ class Table implements StorageInterface
             throw new DatabaseException($err[2]);
         }
 
-        $this->columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->columns = [];
+        $this->primary = [];
+        while ($column = $stmt->fetchAll(PDO::FETCH_ASSOC)) {
+            $this->columns[] = $column['Field'];
+            if ($column['key'] == 'PRI') {
+                $this->primary[] = $column['Field'];
+                if ($column['Extra'] == 'auto_increment') {
+                    $this->autoIncrementColumn = $cikumn['Field'];
+                }
+            }
+        }
     }
 
     public function getColumns()
     {
-        $this->fetchColumns();
-        return array_keys($this->columns);
+        if (!$this->columns) $this->fetchColumns();
+        return $this->columns;
     }
 
     public function getPrimaryKey()
     {
-        $this->fetchColumns();
-        if (!$this->primary) {
-            $this->primary = [];
-            foreach ($this->columns as $name => $def) {
-                if ($def['Key'] == 'PRI') {
-                    $this->primary[] = $name;
-                }
-            }
-        }
+        if (!$this->columns) $this->fetchColumns();
         return $this->primary;
+    }
+
+    public function getAutoIncrementColumn()
+    {
+        if (!$this->columns) $this->fetchColumns();
+        return $this->autoIncrementColumn;
     }
 }

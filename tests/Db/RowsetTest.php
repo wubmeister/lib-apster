@@ -8,6 +8,7 @@ include dirname(__DIR__) . "/Mock/MockTable.php";
 use Unittest\Testcase;
 use Apster\Db\Rowset;
 use Apster\Db\Sql;
+use Apster\Storage\Pages;
 use MockDbAdapter;
 use MockTable;
 
@@ -41,5 +42,19 @@ class RowsetTest extends Testcase
             $num++;
         }
         $this->assertEquals(12, $num);
+    }
+
+    public function testPagination()
+    {
+        $sql = new Sql($this->adapter);
+        $sql->select('*')->from('test');
+        $rowset = new Rowset($sql, $this->table);
+        $rowset->paginate(2, 10);
+
+        $pages = $rowset->getPages();
+        $this->assertIsInstanceOf(Pages::class, $pages);
+        $this->assertEquals(2, $pages->pageCount);
+        $this->assertEquals(2, $pages->current);
+        $this->assertEquals(10, $pages->itemCountPerPage);
     }
 }

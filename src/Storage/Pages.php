@@ -11,7 +11,7 @@ class Pages
         $this->firstItemNumber = ($page - $this->first) * $limit;
         $this->firstPageInRange = $this->first;
         $this->current = $page;
-        $this->currentItemCount = $page == $this->pageCount ? $count - $firstItemNumber : $limit;
+        $this->currentItemCount = $page == $this->pageCount ? $count - $this->firstItemNumber : $limit;
         $this->itemCountPerPage = $limit;
         $this->last = $this->pageCount;
         $this->lastItemNumber = $this->firstItemNumber + $this->currentItemCount - 1;

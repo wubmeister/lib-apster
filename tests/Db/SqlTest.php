@@ -50,4 +50,11 @@ class SqlTest extends Testcase
         $sqlString = (string)$sql;
         $this->assertEquals("SELECT * FROM my_table WHERE (id = :id) ORDER BY name ASC", $sqlString);
     }
+
+    function testLimit()
+    {
+        $sql = (new Sql($this->adapter))->select('*')->from('my_table')->limit(10, 2);
+        $sqlString = (string)$sql;
+        $this->assertEquals("SELECT * FROM my_table LIMIT 10, 2", $sqlString);
+    }
 }

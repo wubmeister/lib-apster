@@ -10,6 +10,14 @@ class MockDbStatement implements StatementInterface
     protected $fetchStyle = PDO::FETCH_BOTH;
     protected $fetchArgument = null;
     protected $fetchCtorArgs = null;
+    protected $countMode = false;
+
+    public function __construct($sql = null)
+    {
+        if (substr($sql, 0, 27) == "SELECT COUNT(*) AS cnt FROM") {
+            $this->countMode = true;
+        }
+    }
 
     /* Methods */
     public function bindColumn($column, &$param, $type, $maxlen, $driverdata){}
@@ -29,7 +37,7 @@ class MockDbStatement implements StatementInterface
         return [ 0, 0, '' ];
     }
 
-    public function execute($input_parameters)
+    public function execute($input_parameters = null)
     {
         return true;
     }
@@ -67,6 +75,13 @@ class MockDbStatement implements StatementInterface
 
     public function fetch($fetch_style = null, $cursor_orientation = PDO::FETCH_ORI_NEXT, $cursor_offset = 0)
     {
+        if ($this->countMode) {
+            if ($this->it >= 1) {
+                return null;
+            }
+            $this->it++;
+            return $this->convertRow([ 'cnt' => 12 ], $fetch_style);
+        }
         if ($this->it < 12) {
             $this->it++;
             $result = [ 'id' => $this->it, 'name' => 'Foo' ];

@@ -20,7 +20,7 @@ class MockDbAdapter implements AdapterInterface
 
     public function exec($statement)
     {
-        return new MockDbStatement();
+        return new MockDbStatement((string)$statement);
     }
 
     public function getAttribute($attribute)
@@ -40,12 +40,12 @@ class MockDbAdapter implements AdapterInterface
 
     public function prepare($statement, $driver_options = [])
     {
-        return new MockDbStatement();
+        return new MockDbStatement((string)$statement);
     }
 
     public function query()
     {
-        return new MockDbStatement();
+        return new MockDbStatement((string)func_get_arg(0));
     }
 
     public function quote($string, $parameter_type = PDO::PARAM_STR)

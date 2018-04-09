@@ -80,8 +80,8 @@ class Sql
         $string = null;
 
         if ($part == self::LIMIT) {
-            $this->parts[$part] = [ $param[0] ];
-            if (count($params) > 1) $this->parts[$part][] = $param[1];
+            $this->parts[$part] = [ $params[0] ];
+            if (count($params) > 1) $this->parts[$part][] = $params[1];
         } else {
             if ($part == self::SELECT || $part == self::FROM || $part == self::JOIN) {
                 $param = $part == self::JOIN ? $params[1] : $params[0];

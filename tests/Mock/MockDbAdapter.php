@@ -1,5 +1,7 @@
 <?php
 
+include 'MockDbStatement.php';
+
 use Apster\Db\Adapter\AdapterInterface;
 
 class MockDbAdapter implements AdapterInterface

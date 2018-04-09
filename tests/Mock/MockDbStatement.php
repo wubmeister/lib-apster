@@ -1,10 +1,15 @@
 <?php
 
-use Db\Adapter\StatementInterface;
+use Apster\Db\Adapter\StatementInterface;
 
 class MockDbStatement implements StatementInterface
 {
     public $queryString;
+
+    protected $it = 0;
+    protected $fetchStyle = PDO::FETCH_BOTH;
+    protected $fetchArgument = null;
+    protected $fetchCtorArgs = null;
 
     /* Methods */
     public function bindColumn($column, &$param, $type, $maxlen, $driverdata){}
@@ -29,12 +34,48 @@ class MockDbStatement implements StatementInterface
         return true;
     }
 
-    public function fetch($fetch_style, $cursor_orientation = PDO::FETCH_ORI_NEXT, $cursor_offset = 0)
+    protected function convertRow($row, $fetchStyle)
     {
-        return [];
+        if (!$fetchStyle) $fetchStyle = $this->fetchStyle;
+
+        switch ($this->fetchStyle) {
+            case PDO::FETCH_NUM:
+                return array_values($row);
+            case PDO::FETCH_BOTH:
+                $result = $row;
+                foreach ($row as $value) $result[] = $value;
+                return $result;
+            case PDO::FETCH_OBJ:
+                $result = new stdClass();
+                foreach ($row as $key => $value) {
+                    $result->$key = $value;
+                }
+                return $result;
+            case PDO::FETCH_CLASS:
+                $className = $this->fetchArgument;
+                $args = $this->fetchCtorArgs;
+                $reflect = new ReflectionClass($className);
+                $result = $reflect->newInstanceArgs($args);
+                foreach ($row as $key => $value) {
+                    $result->$key = $value;
+                }
+                return $result;
+        }
+
+        return $row;
     }
 
-    public function fetchAll($fetch_style, $fetch_argument, $ctor_args = [])
+    public function fetch($fetch_style = null, $cursor_orientation = PDO::FETCH_ORI_NEXT, $cursor_offset = 0)
+    {
+        if ($this->it < 12) {
+            $this->it++;
+            $result = [ 'id' => $this->it, 'name' => 'Foo' ];
+            return $this->convertRow($result, $fetch_style);
+        }
+        return null;
+    }
+
+    public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = [])
     {
         return [];
     }
@@ -70,5 +111,11 @@ class MockDbStatement implements StatementInterface
     }
 
     public function setAttribute($attribute, $value){}
-    public function setFetchMode($mode){}
+
+    public function setFetchMode($mode, $fetch_argument = null, $ctor_args = [])
+    {
+        $this->fetchStyle = $mode;
+        $this->fetchArgument = $fetch_argument;
+        $this->fetchCtorArgs = $ctor_args;
+    }
 }

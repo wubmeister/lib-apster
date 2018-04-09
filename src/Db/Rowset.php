@@ -23,7 +23,7 @@ class Rowset implements ResultsetInterface
 
     public function paginate($page, $limit = 10)
     {
-        $countStmt = $this->sql->prepareCount($this->table->getPdo());
+        $countStmt = $this->sql->prepareCount($this->table->getAdapter());
         $countStmt->execute();
         $row = $countStmt->fetch(PDO::FETCH_NUM);
         $count = $row ? (int)$row[0] : 0;
@@ -41,7 +41,7 @@ class Rowset implements ResultsetInterface
     public function current()
     {
         if (!$this->stmt && !$this->rows) $this->rewind();
-        return $this->rows[$index];
+        return $this->rows[$this->index];
     }
 
     public function key()
@@ -53,8 +53,8 @@ class Rowset implements ResultsetInterface
     {
         $this->index = 0;
         if (!$this->stmt) {
-            $this->stmt = $this->sql->prepare($this->table->getPdo());
-            $this->stmt->setFetchMode(PDO::FETCH_CLASS, $this->table->rowClass, [ $this->table, true ]);
+            $this->stmt = $this->sql->prepare($this->table->getAdapter());
+            $this->stmt->setFetchMode(PDO::FETCH_CLASS, $this->table->getRowClass(), [ $this->table, true ]);
             $this->rows = [];
             if ($row = $this->stmt->fetch()) {
                 $this->rows[] = $row;

@@ -3,8 +3,9 @@
 namespace Apster\Db;
 
 use Apster\Storage\ResultInterface;
+use Apster\Tree\Node;
 
-class Row implements ResultInterface
+class NodeRow extends Node implements ResultInterface
 {
     use RowTrait;
 
@@ -12,5 +13,13 @@ class Row implements ResultInterface
     {
         $this->table = $table;
         $this->persistent = $persistent;
+    }
+
+    public function saveDeep()
+    {
+        $this->save();
+        foreach ($this as $child) {
+            $child->save();
+        }
     }
 }
